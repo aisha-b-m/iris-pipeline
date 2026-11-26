@@ -1,7 +1,7 @@
 # Pipeline reproducible de clasificación — Dataset Iris
 
 ![pipeline](https://github.com/SantiagoGR16/iris-pipeline/actions/workflows/pipeline.yml/badge.svg)
-![python](https://img.shields.io/badge/python-3.10%2B-blue)
+![python](https://img.shields.io/badge/python-3.11%2B-blue)
 
 Pipeline de *machine learning* reproducible que **valida los datos, entrena, valida el modelo,
 hace inferencia gobernada por un Contrato de Datos y ejecuta pruebas automatizadas**, todo con un
@@ -68,7 +68,7 @@ iris-pipeline/
 
 ## 3. Requisitos previos
 
-- **Python 3.10 o superior** (`python --version`)
+- **Python 3.11 o superior** (probado con 3.13; requirements ajustados para 3.14) (`python --version`)
 - **Git** (`git --version`)
 - **make** *(opcional)*: viene en Linux y macOS. En Windows se puede usar
   `python run_pipeline.py`, que hace exactamente lo mismo.
