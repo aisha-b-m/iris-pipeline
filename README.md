@@ -1,6 +1,6 @@
 # Pipeline reproducible de clasificación — Dataset Iris
 
-![pipeline](https://github.com/SantiagoGR16/iris-pipeline/actions/workflows/pipeline.yml/badge.svg)
+![pipeline](https://github.com/aisha-b-m/iris-pipeline/actions/workflows/pipeline.yml/badge.svg)
 ![python](https://img.shields.io/badge/python-3.11%2B-blue)
 ![licencia](https://img.shields.io/badge/licencia-MIT-green)
 
@@ -10,7 +10,7 @@ experimento en **MLflow** y ejecuta **pruebas automatizadas**.
 
 | | |
 |---|---|
-| **Autor** | Santiago Giraldo Rico |
+| **Autor** | Aisha Valentina Brown Moreno |
 | **Curso** | Seminario de Investigación — Ciencia de Datos |
 | **Fecha** | noviembre de 2026 |
 | **Licencia** | MIT (ver `LICENSE`) |
@@ -105,7 +105,7 @@ Todos los comandos se ejecutan en una terminal (PowerShell en Windows; Terminal 
 ### Paso 1. Obtener el proyecto completo
 
 ```bash
-git clone https://github.com/SantiagoGR16/iris-pipeline.git
+git clone https://github.com/aisha-b-m/iris-pipeline.git
 cd iris-pipeline
 ```
 
