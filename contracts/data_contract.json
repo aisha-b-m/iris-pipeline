@@ -1,0 +1,86 @@
+{
+  "contract_name": "iris_inference_contract",
+  "version": "1.0.0",
+  "description": "Contrato de Datos oficial para la inferencia del modelo de clasificación de especies Iris. Define el esquema, tipos, rangos lógicos y reglas que debe cumplir cualquier registro enviado al modelo.",
+  "owner": "Santiago Giraldo Rico",
+  "last_updated": "2026-11-25",
+  "model": {
+    "task": "clasificacion_multiclase",
+    "algorithm": "LogisticRegression (con StandardScaler)",
+    "artifact": "models/iris_model.joblib",
+    "output": {
+      "field": "species",
+      "type": "string",
+      "allowed_values": ["setosa", "versicolor", "virginica"]
+    }
+  },
+  "input_schema": {
+    "required_fields": ["sepal_length", "sepal_width", "petal_length", "petal_width"],
+    "additional_fields_allowed": false,
+    "nullable": false,
+    "units": "centimetros",
+    "fields": {
+      "sepal_length": {
+        "type": "float",
+        "description": "Longitud del sépalo en cm",
+        "min": 4.0,
+        "max": 8.5
+      },
+      "sepal_width": {
+        "type": "float",
+        "description": "Ancho del sépalo en cm",
+        "min": 1.5,
+        "max": 5.0
+      },
+      "petal_length": {
+        "type": "float",
+        "description": "Longitud del pétalo en cm",
+        "min": 0.5,
+        "max": 7.5
+      },
+      "petal_width": {
+        "type": "float",
+        "description": "Ancho del pétalo en cm",
+        "min": 0.05,
+        "max": 3.0
+      }
+    }
+  },
+  "training_schema": {
+    "target_field": "target",
+    "target_type": "int",
+    "target_allowed_values": [0, 1, 2],
+    "target_labels": {"0": "setosa", "1": "versicolor", "2": "virginica"},
+    "expected_rows": 150,
+    "expected_rows_per_class": 50
+  },
+  "rules_notes": [
+    "Los rangos tienen un margen alrededor de los valores observados en el dataset original (min/max reales: sepal_length 4.3-7.9, sepal_width 2.0-4.4, petal_length 1.0-6.9, petal_width 0.1-2.5).",
+    "Los valores booleanos (true/false) no se aceptan como numéricos aunque Python los trate como enteros.",
+    "Los enteros se aceptan como float (ej. 5 equivale a 5.0). Los textos numéricos (\"5.1\") NO se aceptan en inferencia.",
+    "Se rechazan NaN e infinitos."
+  ],
+  "examples": {
+    "valid_input": {
+      "sepal_length": 5.1,
+      "sepal_width": 3.5,
+      "petal_length": 1.4,
+      "petal_width": 0.2
+    },
+    "valid_input_expected_output": {"species": "setosa"},
+    "invalid_input": {
+      "sepal_length": "cinco",
+      "sepal_width": null,
+      "petal_length": 12.0,
+      "petal_width": -0.3,
+      "color": "morado"
+    },
+    "invalid_input_expected_errors": [
+      "sepal_length: tipo inválido (se esperaba float, llegó str)",
+      "sepal_width: valor nulo no permitido",
+      "petal_length: 12.0 fuera de rango [0.5, 7.5]",
+      "petal_width: -0.3 fuera de rango [0.05, 3.0]",
+      "campo no permitido por el contrato: color"
+    ]
+  }
+}

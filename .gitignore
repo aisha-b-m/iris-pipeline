@@ -1,0 +1,17 @@
+# Entornos y cachés
+.venv/
+venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+.ipynb_checkpoints/
+
+# Secretos: nunca se suben al repositorio
+.env
+
+# Artefactos generados (se reproducen con el pipeline)
+models/*.joblib
+reports/*.json
+
+# Se conserva el log como evidencia de ejecución
+!reports/pipeline_run.log

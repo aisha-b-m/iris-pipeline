@@ -1,0 +1,80 @@
+================================================================
+PIPELINE IRIS | inicio: 2026-11-25 18:27:19
+Python 3.13.18 | Linux 6.18.44-fc-v880
+================================================================
+
+>>> 1. Validación de datos
+    [validate] archivo: data/raw/iris.csv
+    [validate] filas válidas: 150/150
+    [validate] conteo por clase: {'0': 50, '1': 50, '2': 50}
+    [validate] estado: OK
+[OK] 1. Validación de datos
+
+>>> 2. Entrenamiento
+    [train] train: 120 filas | test: 30 filas
+    [train] accuracy CV (5 folds): 0.9583 ± 0.0264
+    [train] modelo guardado en models/iris_model.joblib
+[OK] 2. Entrenamiento
+
+>>> 3. Validación del modelo
+    [evaluate] accuracy en prueba: 0.9333
+    [evaluate] F1 macro en prueba: 0.9333
+    [evaluate] matriz de confusión (filas = real, columnas = predicho):
+               setosa      [10, 0, 0]
+               versicolor  [0, 9, 1]
+               virginica   [0, 1, 9]
+                  precision    recall  f1-score   support
+    
+          setosa     1.0000    1.0000    1.0000        10
+      versicolor     0.9000    0.9000    0.9000        10
+       virginica     0.9000    0.9000    0.9000        10
+    
+        accuracy                         0.9333        30
+       macro avg     0.9333    0.9333    0.9333        30
+    weighted avg     0.9333    0.9333    0.9333        30
+    
+    [evaluate] compuerta de calidad superada (>= 0.9)
+[OK] 3. Validación del modelo
+
+>>> 4. Inferencia con contrato
+    [predict] ejemplo_valido: {"sepal_length": 5.1, "sepal_width": 3.5, "petal_length": 1.4, "petal_width": 0.2}
+    [predict]   -> {"status": "ok", "species": "setosa", "probabilities": {"setosa": 0.9808, "versicolor": 0.0192, "virginica": 0.0}}
+    [predict] ejemplo_invalido: {"sepal_length": "cinco", "sepal_width": null, "petal_length": 12.0, "petal_width": -0.3, "color": "morado"}
+    [predict]   -> {"status": "rejected", "errors": ["campo no permitido por el contrato: color", "sepal_length: tipo inválido (se esperaba float, llegó str)", "sepal_width: valor nulo no permitido", "petal_length: 12.0 fuera de rango [0.5, 7.5]", "petal_width: -0.3 fuera de rango [0.05, 3.0]"]}
+[OK] 4. Inferencia con contrato
+
+>>> 5. Pruebas automatizadas
+    ============================= test session starts ==============================
+    platform linux -- Python 3.13.18, pytest-9.1.1, pluggy-1.6.0 -- /usr/local/bin/python3
+    rootdir: /home/claude/iris-pipeline
+    configfile: pytest.ini
+    plugins: platformdirs-4.13.5, anyio-4.15.1
+    collecting ... collected 21 items
+    
+    tests/test_pipeline.py::test_se_generan_artefactos PASSED                [  4%]
+    tests/test_pipeline.py::test_modelo_supera_umbral PASSED                 [  9%]
+    tests/test_pipeline.py::test_particion_estratificada PASSED              [ 14%]
+    tests/test_pipeline.py::test_reproducibilidad PASSED                     [ 19%]
+    tests/test_pipeline.py::test_prediccion_ejemplo_valido PASSED            [ 23%]
+    tests/test_pipeline.py::test_prediccion_rechaza_ejemplo_invalido PASSED  [ 28%]
+    tests/test_validation.py::test_dataset_original_es_valido PASSED         [ 33%]
+    tests/test_validation.py::test_detecta_tipo_incorrecto PASSED            [ 38%]
+    tests/test_validation.py::test_detecta_etiqueta_no_entera PASSED         [ 42%]
+    tests/test_validation.py::test_detecta_nulos PASSED                      [ 47%]
+    tests/test_validation.py::test_detecta_fuera_de_rango PASSED             [ 52%]
+    tests/test_validation.py::test_detecta_clase_no_permitida PASSED         [ 57%]
+    tests/test_validation.py::test_detecta_columnas_faltantes PASSED         [ 61%]
+    tests/test_validation.py::test_detecta_encabezado_inconsistente PASSED   [ 66%]
+    tests/test_validation.py::test_archivo_inexistente PASSED                [ 71%]
+    tests/test_validation.py::test_contrato_tiene_ejemplos PASSED            [ 76%]
+    tests/test_validation.py::test_ejemplo_valido_del_contrato_pasa PASSED   [ 80%]
+    tests/test_validation.py::test_ejemplo_invalido_del_contrato_falla PASSED [ 85%]
+    tests/test_validation.py::test_registro_rechaza_booleanos_y_texto PASSED [ 90%]
+    tests/test_validation.py::test_registro_rechaza_campo_faltante PASSED    [ 95%]
+    tests/test_validation.py::test_registro_acepta_enteros PASSED            [100%]
+    
+    ============================== 21 passed in 1.15s ==============================
+[OK] 5. Pruebas automatizadas
+
+PIPELINE COMPLETADO en 4.9 s
+Evidencia guardada en reports/pipeline_run.log
