@@ -88,7 +88,7 @@ def main():
     with open(config.REPORTS_DIR / "train_metrics.json", "w", encoding="utf-8") as f:
         json.dump(train_metrics, f, indent=2)
 
-    print(f"[train] modelo guardado en {config.MODEL_PATH.relative_to(config.ROOT_DIR)}")
+    print(f"[train] modelo guardado en {config.MODEL_PATH.name}")
     return 0
 
 

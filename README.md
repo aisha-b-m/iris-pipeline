@@ -93,15 +93,23 @@ make all                           # Linux / macOS / Git Bash
 # python run_pipeline.py           # Windows o cualquier sistema sin make
 ```
 
-Resultado esperado: el log termina con `PIPELINE COMPLETADO` y los 21 tests en `PASSED`.
+Resultado esperado: el log termina con `PIPELINE COMPLETADO` y los 28 tests en `PASSED`.
 Se generan:
 
 | Archivo | Contenido |
 |---|---|
+| `data/processed/train.csv`, `test.csv` | Partición 80 % (120) / 20 % (30) |
 | `models/iris_model.joblib` | Modelo entrenado + conjunto de prueba |
-| `reports/validation_report.json` | Resultado de la validación de datos |
-| `reports/metrics.json` | Métricas de CV y prueba, matriz de confusión, compuerta |
+| `reports/metrics.json` | Accuracy y F1 en prueba |
+| `mlflow.db` + `mlruns/` | Experimento MLflow: parámetros, métricas, modelo y contrato |
 | `reports/pipeline_run.log` | Evidencia completa de la ejecución |
+
+Para ver los experimentos registrados en MLflow:
+
+```bash
+mlflow ui --backend-store-uri sqlite:///mlflow.db
+# abrir http://127.0.0.1:5000 → experimento "iris-pipeline"
+```
 
 Para ver el notebook: `pip install jupyterlab` y luego `jupyter lab notebooks/pipeline_iris.ipynb`.
 
@@ -109,8 +117,8 @@ Para ver el notebook: `pip install jupyterlab` y luego `jupyter lab notebooks/pi
 
 | Comando | Qué hace |
 |---|---|
-| `make all` / `python run_pipeline.py` | Pipeline completo: validar → entrenar → evaluar → predecir → probar |
-| `python run_pipeline.py --skip-tests` | Pipeline sin pruebas |
+| `make all` / `python run_pipeline.py` | Pipeline completo de 4 etapas |
+| `python run_pipeline.py --skip-tests` | Solo etapas 1 a 3 |
 | `make validate` / `python -m src.validate [archivo.csv]` | Solo valida datos |
 | `make train` | Valida y entrena |
 | `make evaluate` | Valida, entrena y evalúa el modelo |
@@ -126,27 +134,31 @@ python -m src.predict '{"sepal_length": 6.9, "sepal_width": 3.1, "petal_length":
 
 ## 6. Etapas del pipeline
 
+`run_pipeline.py` ejecuta 4 etapas en orden. Si una falla, el pipeline se detiene con código 1
+y el motivo queda en el log.
+
 ```
 data/raw/iris.csv
       │
       ▼
-[1] validate.py ──✗──► se detiene (código 1) + reports/validation_report.json
-      │ OK
+[1] Preparación ──► nombres y tipos ──► partición estratificada 80/20 (random_state=42)
+      │                                  └─► data/processed/train.csv (120) y test.csv (30)
       ▼
-[2] train.py ──► split estratificado 80/20 ──► CV 5 folds ──► models/iris_model.joblib
-      │
+[2] Validación y calidad ──✗──► se detiene
+      │  • archivo crudo: tipos, nulos, rangos, estructura (src/validate.py)
+      │  • cada registro de train y test contra el Contrato de Datos
+      │  • proporción 80/20, sin registros compartidos (fuga), clases balanceadas
       ▼
-[3] evaluate.py ──► accuracy < 0.90 ──✗──► se detiene
-      │ OK                              
+[3] Entrenamiento + MLflow ──► StandardScaler + LogisticRegression
+      │  • métricas en test: accuracy y F1 macro; accuracy < 0.90 ──✗──► se detiene
+      │  • modelo en models/iris_model.joblib
+      │  • MLflow: parámetros, métricas, modelo (con firma) y contrato
       ▼
-[4] predict.py ──► valida cada registro con el contrato ──► especie o lista de errores
-      │
-      ▼
-[5] pytest ──► 21 pruebas
+[4] Pruebas automatizadas ──► pytest (28 pruebas)
 ```
 
-Cada paso es un proceso independiente; si alguno termina con código distinto de 0, el
-orquestador detiene la ejecución y lo deja registrado en el log.
+Los módulos de `src/` (`validate`, `train`, `evaluate`, `predict`) también se pueden ejecutar por
+separado con `make validate`, `make train`, etc.
 
 ## 7. Validación de datos
 
@@ -183,13 +195,15 @@ Para cambiar una regla basta con editar el JSON (y subir su `version`).
 
 ## 9. Pruebas automatizadas
 
-21 pruebas en `tests/`:
+28 pruebas en `tests/`:
 
 - `test_validation.py` (15): dataset original válido; detección de tipos incorrectos, nulos,
   valores fuera de rango, clases no permitidas, columnas faltantes, encabezado inconsistente y
   archivo inexistente; ejemplos válido e inválido del contrato.
 - `test_pipeline.py` (6): generación de artefactos, compuerta de calidad, partición
   estratificada, **reproducibilidad** (dos entrenamientos → mismas métricas) e inferencia.
+- `test_run_pipeline.py` (7): partición 80/20, estratificación y ausencia de fugas, archivos
+  procesados, detección de nulos/rangos/fugas en la etapa 2, y modelo y métricas de la etapa 3.
 
 Además, GitHub Actions (`.github/workflows/pipeline.yml`) ejecuta `make all` en un servidor limpio
 en cada *push* y publica los reportes como artefacto descargable.
@@ -222,6 +236,8 @@ salidas del notebook.
 | `ModuleNotFoundError: No module named 'src'` | Ejecute los comandos desde la raíz del repositorio con `python -m src.<modulo>` |
 | `python` no se reconoce | Pruebe con `python3` o `py` (Windows), o `make all PYTHON=py` |
 | Fallan las dependencias | Actualice pip: `python -m pip install --upgrade pip` |
+| `MLflow no está instalado` | Active el entorno virtual y ejecute `pip install -r requirements.txt` |
+| `mlflow` no se reconoce como comando | Active el entorno virtual (`.venv\Scripts\Activate.ps1`) |
 
 ---
 

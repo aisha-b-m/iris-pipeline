@@ -12,11 +12,22 @@ from src.predict import predict_record
 
 
 @pytest.fixture(scope="module")
-def trained():
-    """Entrena y evalúa una vez; las pruebas del módulo reutilizan el resultado."""
-    assert train.main() == 0
-    assert evaluate.main() == 0
-    return joblib.load(config.MODEL_PATH)
+def trained(tmp_path_factory):
+    """
+    Entrena y evalúa una vez con los módulos src/train y src/evaluate.
+    Las rutas de salida se redirigen a una carpeta temporal para NO
+    sobrescribir el modelo y las métricas que generó run_pipeline.py.
+    """
+    tmp = tmp_path_factory.mktemp("artefactos")
+    originales = (config.MODELS_DIR, config.REPORTS_DIR, config.MODEL_PATH, config.METRICS_PATH)
+    config.MODELS_DIR, config.REPORTS_DIR = tmp, tmp
+    config.MODEL_PATH, config.METRICS_PATH = tmp / "model.joblib", tmp / "metrics.json"
+    try:
+        assert train.main() == 0
+        assert evaluate.main() == 0
+        yield joblib.load(config.MODEL_PATH)
+    finally:  # se restauran las rutas reales aunque algo falle
+        config.MODELS_DIR, config.REPORTS_DIR, config.MODEL_PATH, config.METRICS_PATH = originales
 
 
 def test_se_generan_artefactos(trained):

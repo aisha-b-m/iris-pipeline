@@ -47,6 +47,8 @@ def main():
     passed = acc >= config.MIN_TEST_ACCURACY
     metrics = {
         **train_metrics,
+        "accuracy": round(float(acc), 4),        # mismas claves que escribe run_pipeline.py
+        "f1_score": round(float(f1), 4),
         "test_accuracy": round(float(acc), 4),
         "test_f1_macro": round(float(f1), 4),
         "confusion_matrix": cm.tolist(),

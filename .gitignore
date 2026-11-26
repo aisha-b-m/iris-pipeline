@@ -15,3 +15,9 @@ reports/*.json
 
 # Se conserva el log como evidencia de ejecución
 !reports/pipeline_run.log
+
+# MLflow y datos intermedios (se regeneran con el pipeline)
+mlflow.db
+mlruns/
+mlartifacts/
+data/processed/
